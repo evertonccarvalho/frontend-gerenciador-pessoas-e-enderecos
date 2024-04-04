@@ -9,38 +9,17 @@ import {
 import api from '@/services/api'
 import { TokenService } from '@/services/tokenService'
 import { toast } from 'sonner';
-import { z } from 'zod';
-import authService, { LoginSchema } from '@/services/authService';
-
 import { useRouter } from 'next/navigation';
-
-
 
 type User = {
 	id: string
 	email: string
 	name: string,
-	role: UserType
-	image: string | null,
 }
-
-type SignInCredentials = {
-	email: string
-	password: string
-}
-
-export enum UserType {
-	USER = 'USER',
-	ADMIN = 'ADMIN',
-	SELLER = 'SELLER',
-}
-
 
 type AuthContextData = {
-	signIn: (credentials: SignInCredentials) => Promise<void>
 	signOut: () => void
 	user?: User
-	isAuthenticated: boolean
 }
 
 type AuthProviderProps = {
@@ -56,14 +35,13 @@ export function signOut() {
 
 export function AuthProvider({ children }: AuthProviderProps) {
 	const [user, setUser] = useState<User>()
-	const isAuthenticated = !!user
 	const router = useRouter();
 
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
 				if (TokenService.getAccessToken()) {
-					const res = await api.get('/users/current');
+					const res = await api.get('/auth/current');
 					if (res.status === 200) {
 						console.log('Dados do usuário carregados com sucesso');
 						setUser(res.data);
@@ -73,7 +51,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 				if (error.response && error.response.status === 401) {
 					console.log('Primeira tentativa falhou, tentando novamente...');
 					try {
-						const res = await api.get('/users/current');
+						const res = await api.get('/auth/current');
 						if (res.status === 200) {
 							console.log('Dados do usuário carregados com sucesso na segunda tentativa');
 							setUser(res.data);
@@ -89,32 +67,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
 			}
 		};
 
-
 		fetchData();
 	}, [router]);
 
-	async function signIn(formData: z.infer<typeof LoginSchema>) {
-		try {
-
-			const response = await authService.login(formData);
-
-			const { token, refreshToken, user } = response.data;
-			TokenService.saveAccessToken(token);
-			TokenService.saveRefreshToken(refreshToken)
-			setUser(user);
-
-			router.push('/')
-
-			toast.success('Logado com sucesso!')
-		} catch (error) {
-			if (error instanceof Error)
-				toast.error(error.message)
-		}
-	}
-
 
 	return (
-		<AuthContext.Provider value={{ isAuthenticated, user, signIn, signOut }}>
+		<AuthContext.Provider value={{ user, signOut }}>
 			{children}
 		</AuthContext.Provider>
 	)

@@ -33,8 +33,7 @@ api.interceptors.response.use(
 			const refreshToken = localStorage.getItem('refreshToken');
 			if (!refreshToken) {
 				TokenService.removeTokens()
-				window.location.href = '/login';
-				// return Promise.reject(error);
+				return Promise.reject(error);
 			}
 			try {
 				const response = await axios.post(`${process.env.NEXT_PUBLIC_BASEURL}/refresh`, { refreshToken });
@@ -45,10 +44,10 @@ api.interceptors.response.use(
 				originalRequest.headers.Authorization = `Bearer ${accessToken}`;
 				return axios(originalRequest);
 			} catch (error) {
-				// TokenService.removeTokens()
-				// window.location.href = '/login';
 				// Handle refresh token error or redirect to login
 				console.log('Erro ao atualiza token de acesso', error);
+				// Redirecionar para a página de login
+				window.location.href = '/auth/login';
 
 			}
 		}

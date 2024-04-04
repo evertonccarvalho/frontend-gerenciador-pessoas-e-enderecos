@@ -34,6 +34,7 @@ const routeList: RouteProps[] = [
 
 export const Navbar = () => {
   const { user } = useAuth();
+  console.log(user);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   return (
     <header className="absolute border-b-[1px] top-0  z-40 w-full bg-background  dark:border-b-slate-700 ">
