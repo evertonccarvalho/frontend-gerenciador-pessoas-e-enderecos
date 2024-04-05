@@ -1,3 +1,4 @@
+import MainSideBar from "./_components/Sidebar";
 
 
 interface SettingsLayoutProps {
@@ -11,7 +12,7 @@ const DashboardLayout = async ({ children }: SettingsLayoutProps) => {
 		<>
 			<div className="flex flex-col h-screen">
 				<div className="flex flex-1 h-full overflow-hidden">
-					{/* <MainSideBar isPro={isPro} apiLimitCount={apiLimitCount} /> */}
+					<MainSideBar />
 					{/* <HeaderDashboard /> */}
 
 					<div className="flex flex-1 h-full place-content-center overflow-y-auto scrollbar-thin scrollbar-track-background scrollbar-thumb-primary">
