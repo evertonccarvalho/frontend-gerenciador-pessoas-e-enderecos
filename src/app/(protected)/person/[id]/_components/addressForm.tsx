@@ -127,7 +127,7 @@ export const AddressForm: React.FC<FormProps> = ({
 								control={form.control}
 								name="city"
 								render={({ field }) => (
-									<FormItem>
+									<FormItem className='w-full'>
 										<FormLabel>Cidade</FormLabel>
 										<FormControl>
 											<Input
@@ -181,12 +181,12 @@ export const AddressForm: React.FC<FormProps> = ({
 								control={form.control}
 								name="address"
 								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Logradouro</FormLabel>
+									<FormItem className='w-full'>
+										<FormLabel>Rua</FormLabel>
 										<FormControl>
 											<Input
 												disabled={loading}
-												placeholder="Logradouro"
+												placeholder="Rua"
 												{...field}
 											/>
 										</FormControl>
@@ -241,7 +241,7 @@ export const AddressForm: React.FC<FormProps> = ({
 									<div className="space-y-0.5">
 										<FormLabel className="text-base">Endereço Padrão</FormLabel>
 										<FormDescription>
-											Deseja definir este endereço como seu endereço padrão para entregas.
+											Deseja definir este endereço como seu endereço padrão.
 										</FormDescription>
 									</div>
 									<FormControl>

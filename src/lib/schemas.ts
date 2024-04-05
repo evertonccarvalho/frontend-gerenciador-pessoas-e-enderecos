@@ -22,46 +22,33 @@ export const RegisterSchema = z.object({
 });
 
 export const addressSchema = z.object({
-  address: z.string(),
+  address: z.string().min(1, "Não pode estar vazio."),
   number: z.coerce.number(),
   complement: z.string(),
-  zipcode: z.string().regex(/^\d{5}-\d{3}$/i, "Formato de CEP inválido"),
-  city: z.string(),
-  neighborhood: z.string(),
-  state: z.string(),
+  zipcode: z.string().regex(/^\d{5}-\d{3}$/i, "Formato de CEP inválido."),
+  city: z.string().min(3, "Mínimo de 3 caracteres."),
+  neighborhood: z.string().min(3, "Mínimo de 3 caracteres."),
+  state: z.string().min(2, "Mínimo de 2 caracteres."),
   isDefault: z.boolean().default(false),
 });
 
-export const updateAddressSchema = z.object({
+export const updateAddressSchema = addressSchema.extend({
   id: z.string(),
-  address: z.string(),
-  number: z.coerce.number(),
-  complement: z.string(),
-  zipcode: z.string().regex(/^\d{5}-\d{3}$/i, "Formato de CEP inválido"),
-  city: z.string(),
-  neighborhood: z.string(),
-  state: z.string(),
-  isDefault: z.boolean().default(false),
-});
-
-
-export const personCreateSchema = z.object({
-  name: z.string().min(4, { message: "Mínimo de 4 caracteres" }),
-  sex: z.string(),
-  dateOfBirth: z.coerce.date(),
-  maritalStatus: z.string(),
-  addresses: addressSchema.optional(),
 });
 
 export const personSchema = z.object({
-  id: z.string().optional(),
-  name: z.string().min(4, { message: "Mínimo de 4 caracteres" }),
-  sex: z.string(),
-  dateOfBirth: z.coerce.date(),
-  maritalStatus: z.string(),
+  name: z.string().min(4, { message: "O nome deve ter no mínimo 4 caracteres." }),
+  sex: z.string().min(1, { message: "Selecione o sexo." }),
+  dateOfBirth: z.coerce.date().refine(value => !isNaN(value.getTime()), {
+    message: "Data de nascimento inválida."
+  }),
+  maritalStatus: z.string().min(1, { message: "Selecione o estado civil." }),
   addresses: addressSchema.optional(),
 });
 
+export const updatePersonSchema = personSchema.extend({
+  id: z.string(),
+});
 
 export interface IPerson {
   id: string;
@@ -70,7 +57,7 @@ export interface IPerson {
   dateOfBirth: Date;
   maritalStatus: string;
   addresses?: IAddresses[];
-  defaultAddress?: IAddresses; // Adicionando a propriedade defaultAddress
+  defaultAddress?: IAddresses;
 
 }
 

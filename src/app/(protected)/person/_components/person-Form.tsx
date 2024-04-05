@@ -35,13 +35,13 @@ import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 import personService from '@/services/personService';
 import { Heading } from '@/components/heading';
-import { personCreateSchema, personSchema } from '@/lib/schemas';
+import { personSchema, updatePersonSchema } from '@/lib/schemas';
 import DatePicker from './DatePicker';
 import { Switch } from '@/components/ui/switch';
 
 
-type PersonFormValues = z.infer<typeof personCreateSchema>;
-export type PersonInitalData = z.infer<typeof personSchema>;
+type PersonFormValues = z.infer<typeof personSchema>;
+export type PersonInitalData = z.infer<typeof updatePersonSchema>;
 
 
 interface PersonFormProps {
@@ -85,7 +85,7 @@ export const PersonForm: React.FC<PersonFormProps> = ({
 
 
 	const form = useForm<PersonFormValues>({
-		resolver: zodResolver(personCreateSchema),
+		resolver: zodResolver(personSchema),
 		defaultValues,
 	});
 
@@ -137,7 +137,7 @@ export const PersonForm: React.FC<PersonFormProps> = ({
 					onSubmit={form.handleSubmit(onSubmit)}
 					className="space-y-8  mx-auto  items-center justify-center"
 				>
-					<div className="flex gap-2 flex-col">
+					<div className="flex gap-2 flex-col ">
 
 						<FormField
 							control={form.control}
@@ -218,7 +218,7 @@ export const PersonForm: React.FC<PersonFormProps> = ({
 								)}
 							/>
 						</div>
-						<div className='flex gap-2 flex-col w-full pt-4'>
+						<div className='flex gap-2 flex-col w-full  pt-4'>
 							<h1 className='font-semibold text-center'>Endereço</h1>
 
 							<FormField
@@ -238,12 +238,12 @@ export const PersonForm: React.FC<PersonFormProps> = ({
 									</FormItem>
 								)}
 							/>
-							<div className='flex gap-2'>
+							<div className='flex gap-2 w-full'>
 								<FormField
 									control={form.control}
 									name="addresses.city"
 									render={({ field }) => (
-										<FormItem>
+										<FormItem className='w-full'>
 											<FormLabel>Cidade</FormLabel>
 											<FormControl>
 												<Input
@@ -291,18 +291,17 @@ export const PersonForm: React.FC<PersonFormProps> = ({
 									)}
 								/>
 							</div>
-							<div className='flex gap-2'>
-
+							<div className='flex gap-2 w-full'>
 								<FormField
 									control={form.control}
 									name="addresses.address"
 									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Logradouro</FormLabel>
+										<FormItem className='w-full'>
+											<FormLabel>Rua</FormLabel>
 											<FormControl>
 												<Input
 													disabled={loading}
-													placeholder="Logradouro"
+													placeholder="Rua"
 													{...field}
 												/>
 											</FormControl>
@@ -357,7 +356,7 @@ export const PersonForm: React.FC<PersonFormProps> = ({
 										<div className="space-y-0.5">
 											<FormLabel className="text-base">Endereço Padrão</FormLabel>
 											<FormDescription>
-												Deseja definir este endereço como seu endereço padrão para entregas.
+												Deseja definir este endereço como seu endereço padrão.
 											</FormDescription>
 										</div>
 										<FormControl>
