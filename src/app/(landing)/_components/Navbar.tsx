@@ -97,7 +97,7 @@ export const Navbar = () => {
 
           <div className="hidden md:flex gap-2">
             {user ? (
-              <Link href="/dashboard" className={`border ${buttonVariants({ variant: "default" })}`}>
+              <Link href="/person" className={`border ${buttonVariants({ variant: "default" })}`}>
                 <LogIn className="mr-2 w-5 h-5" />
                 Minha Conta
               </Link>

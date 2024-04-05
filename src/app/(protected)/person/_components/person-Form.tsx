@@ -37,6 +37,7 @@ import personService from '@/services/personService';
 import { Heading } from '@/components/heading';
 import { personCreateSchema, personSchema } from '@/lib/schemas';
 import DatePicker from './DatePicker';
+import { Switch } from '@/components/ui/switch';
 
 
 type PersonFormValues = z.infer<typeof personCreateSchema>;
@@ -238,7 +239,6 @@ export const PersonForm: React.FC<PersonFormProps> = ({
 								)}
 							/>
 							<div className='flex gap-2'>
-
 								<FormField
 									control={form.control}
 									name="addresses.city"
@@ -348,12 +348,29 @@ export const PersonForm: React.FC<PersonFormProps> = ({
 									)}
 								/>
 							</div>
-							<div className='flex gap-2'>
 
+							<FormField
+								control={form.control}
+								name="addresses.isDefault"
+								render={({ field }) => (
+									<FormItem className="flex bg-card flex-row items-center justify-between rounded-lg border p-4">
+										<div className="space-y-0.5">
+											<FormLabel className="text-base">Endereço Padrão</FormLabel>
+											<FormDescription>
+												Deseja definir este endereço como seu endereço padrão para entregas.
+											</FormDescription>
+										</div>
+										<FormControl>
+											<Switch
+												checked={field.value}
+												onCheckedChange={field.onChange}
 
-
-
-							</div>
+												aria-readonly
+											/>
+										</FormControl>
+									</FormItem>
+								)}
+							/>
 						</div>
 
 

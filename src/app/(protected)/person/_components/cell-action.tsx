@@ -9,13 +9,14 @@ import {
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import personService from '@/services/personService';
-import { Edit, MoreHorizontal, Trash } from 'lucide-react';
+import { ArrowUpRight, Edit, MoreHorizontal, MoreVertical, Trash, View, ViewIcon } from 'lucide-react';
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { PersonForm } from './person-Form';
 import { IPerson } from '@/lib/schemas';
 import { AlertModal } from '@/components/alert-modal';
+import { useRouter } from 'next/navigation';
 
 interface CellActionProps {
 	data: IPerson;
@@ -27,7 +28,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
 	const [openDelete, setOpenDelete] = useState(false);
 	const [openUpdate, setOpenUpdate] = useState(false);
 
-
+	const router = useRouter()
 	const deletePersonMutation = useMutation({
 		mutationFn: () => personService.delete(data.id || ''),
 		onSuccess: async () => {
@@ -43,6 +44,10 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
 		},
 	});
 
+	const handleDetails = () => {
+		router.push(`/person/${data.id}`)
+	}
+
 	return (
 		<>
 			<div className="justify-end flex">
@@ -55,24 +60,26 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
 					onConfirm={() => deletePersonMutation.mutate()}
 					loading={loading}
 				/>
-				<FormModal
+				{/* <FormModal
 					isOpen={openUpdate}
 					onClose={() => setOpenUpdate(false)}
 				>
 					<PersonForm
 						onClose={() => setOpenUpdate(false)}
 						initialData={data} />
-				</FormModal>
+				</FormModal> */}
 				<DropdownMenu modal={false}>
 					<DropdownMenuTrigger asChild>
 						<Button variant="ghost" className="h-8 w-8 p-0">
 							<span className="sr-only">Open menu</span>
-							<MoreHorizontal className="h-4 w-4" />
+							<MoreVertical className="h-4 w-4" />
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end">
 						<DropdownMenuLabel>Ações</DropdownMenuLabel>
-
+						<DropdownMenuItem onClick={() => handleDetails()}>
+							<ArrowUpRight className="mr-2 h-4 w-4" /> Detalhes
+						</DropdownMenuItem>
 						<DropdownMenuItem onClick={() => setOpenUpdate(true)}>
 							<Edit className="mr-2 h-4 w-4" /> Atualizar
 						</DropdownMenuItem>

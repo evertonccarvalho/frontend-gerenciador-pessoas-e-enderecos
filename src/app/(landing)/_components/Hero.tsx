@@ -44,7 +44,7 @@ export const Hero = () => {
 
 				<div className="space-y-4 md:space-y-0 md:space-x-4">
 					{user ? (
-						<Link href="/dashboard" className={`border w-1/2 ${buttonVariants({ variant: "default" })}`}>
+						<Link href="/person" className={`border w-1/2 ${buttonVariants({ variant: "default" })}`}>
 							<LogIn className="mr-2 w-5 h-5" />
 							Minha Conta
 						</Link>

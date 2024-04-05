@@ -23,6 +23,15 @@ const personService = {
 			throw error;
 		}
 	},
+	getById: async (id: string) => {
+		try {
+			const response = await api.get(`/persons/${id}`,);
+			return response.data;
+		} catch (error) {
+			console.log('Erro ao buscar pessoas:', error);
+			throw error;
+		}
+	},
 
 	update: async (id: string, data: any) => {
 		try {

@@ -47,7 +47,7 @@ export const LoginForm = () => {
       console.log(response.data.message);
       if (response.status === 200) {
         setSuccess("Logado com sucesso!");
-        router.push("/dashboard")
+        router.push("/person")
       } else {
         setError(response.data.message);
       }

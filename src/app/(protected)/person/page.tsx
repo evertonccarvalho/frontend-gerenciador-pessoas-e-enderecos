@@ -12,6 +12,9 @@ import { PersonTable } from './_components/person-table';
 import { columnsPerson } from './_components/person-columns';
 import { Separator } from '@/components/ui/separator';
 import personService from '@/services/personService';
+import { format, parseISO } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { IPerson } from '@/lib/schemas';
 
 type paramsProps = {
 	searchParams: {
@@ -21,7 +24,6 @@ type paramsProps = {
 
 const PersonPage = ({ searchParams }: paramsProps) => {
 	const [open, setOpen] = useState(false);
-	const breadcrumbItems = [{ title: 'Pessoas', link: '/person' }];
 
 	const { data, isLoading, isError, refetch } = useQuery({
 		queryKey: ['person'],
@@ -42,11 +44,21 @@ const PersonPage = ({ searchParams }: paramsProps) => {
 	const total = data.length;
 	const pageCount = Math.ceil(total / pageLimit);
 
+
+	const formattedData = data.map((person: IPerson) => {
+		const { id, name, sex, dateOfBirth, maritalStatus, addresses } = person;
+		const formattedDateOfBirth = format((dateOfBirth), 'dd/MM/yyyy', { locale: ptBR });
+		return { id, name, sex, maritalStatus, addresses, dateOfBirth: formattedDateOfBirth, };
+	});
+
+
 	return (
 		<>
 			<div className="flex-1 space-y-4 bg-card/80  p-4 md:p-8 pt-6">
-				<BreadCrumb items={breadcrumbItems} />
-				<FormModal isOpen={open} onClose={() => setOpen(false)}>
+				<FormModal
+					loading={isLoading}
+					isOpen={open}
+					onClose={() => setOpen(false)}>
 					<PersonForm
 						onClose={() => setOpen(false)}
 						initialData={null} />
@@ -66,7 +78,7 @@ const PersonPage = ({ searchParams }: paramsProps) => {
 				<PersonTable
 					searchKey="name"
 					columns={columnsPerson}
-					data={data}
+					data={formattedData}
 					pageCount={pageCount}
 				/>
 			</div>

@@ -41,7 +41,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 		const fetchData = async () => {
 			try {
 				if (TokenService.getAccessToken()) {
-					const res = await api.get('/auth/current');
+					const res = await api.get('/users/current');
 					if (res.status === 200) {
 						console.log('Dados do usuário carregados com sucesso');
 						setUser(res.data);
@@ -51,9 +51,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
 				if (error.response && error.response.status === 401) {
 					console.log('Primeira tentativa falhou, tentando novamente...');
 					try {
-						const res = await api.get('/auth/current');
+						const res = await api.get('/users/current');
 						if (res.status === 200) {
 							console.log('Dados do usuário carregados com sucesso na segunda tentativa');
+							console.log(res)
 							setUser(res.data);
 						}
 					} catch (error) {

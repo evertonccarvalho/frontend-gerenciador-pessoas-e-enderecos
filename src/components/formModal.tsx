@@ -5,8 +5,8 @@ import { Modal } from './modal';
 interface FormModalProps {
 	isOpen: boolean;
 	onClose: () => void;
-	// onConfirm: () => void;
-	// loading: boolean;
+	onConfirm?: () => void;
+	loading?: boolean;
 	children: ReactNode; // Accept any form component as children
 	description?: string;
 	title?: string;
@@ -15,8 +15,8 @@ interface FormModalProps {
 export const FormModal: React.FC<FormModalProps> = ({
 	isOpen,
 	onClose,
-	// onConfirm,
-	// loading,
+	onConfirm,
+	loading,
 	children,
 	description,
 	title,
