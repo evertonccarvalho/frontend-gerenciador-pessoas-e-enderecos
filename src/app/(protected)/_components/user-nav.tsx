@@ -18,6 +18,7 @@ export function UserNav() {
 	if (!user) {
 		return null;
 	}
+
 	return (
 		<div className="flex gap-2">
 			<DropdownMenu >

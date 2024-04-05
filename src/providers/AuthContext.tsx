@@ -1,41 +1,36 @@
 "use client"
-import {
-	createContext,
-	ReactNode,
-	useContext,
-	useEffect,
-	useState,
-} from 'react'
-import api from '@/services/api'
-import { TokenService } from '@/services/tokenService'
+import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
+import api from '@/services/api';
+import { TokenService } from '@/services/tokenService';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 
 type User = {
-	id: string
-	email: string
-	name: string,
-}
+	id: string;
+	email: string;
+	name: string;
+};
 
 type AuthContextData = {
-	signOut: () => void
-	user?: User
-}
+	user?: User;
+	signOut: () => void;
+};
 
 type AuthProviderProps = {
-	children: ReactNode
-}
+	children: ReactNode;
+};
 
-const AuthContext = createContext({} as AuthContextData)
-
-export function signOut() {
-	TokenService.removeTokens()
-	location.reload()
-}
+const AuthContext = createContext<AuthContextData | undefined>(undefined);
 
 export function AuthProvider({ children }: AuthProviderProps) {
-	const [user, setUser] = useState<User>()
+	const [user, setUser] = useState<User | undefined>();
 	const router = useRouter();
+
+	const signOut = () => {
+		TokenService.removeTokens();
+		setUser(undefined)
+		router.push('/');
+	};
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -43,40 +38,41 @@ export function AuthProvider({ children }: AuthProviderProps) {
 				if (TokenService.getAccessToken()) {
 					const res = await api.get('/users/current');
 					if (res.status === 200) {
-						console.log('Dados do usuário carregados com sucesso');
 						setUser(res.data);
 					}
 				}
-			} catch (error: any) {
-				if (error.response && error.response.status === 401) {
-					console.log('Primeira tentativa falhou, tentando novamente...');
-					try {
-						const res = await api.get('/users/current');
-						if (res.status === 200) {
-							console.log('Dados do usuário carregados com sucesso na segunda tentativa');
-							console.log(res)
-							setUser(res.data);
-						}
-					} catch (error) {
-						toast.error('Erro ao carregar dados do usuário');
-						signOut();
-					}
-				} else {
-					toast.error('Erro ao carregar dados do usuário');
-					signOut();
+			} catch (error) {
+				handleFetchError();
+			}
+		};
+
+		const handleFetchError = async () => {
+			try {
+				const res = await api.get('/users/current');
+				if (res.status === 200) {
+					setUser(res.data);
 				}
+			} catch (error) {
+				toast.error('Failed to load user data');
+				signOut();
 			}
 		};
 
 		fetchData();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [router]);
-
 
 	return (
 		<AuthContext.Provider value={{ user, signOut }}>
 			{children}
 		</AuthContext.Provider>
-	)
+	);
 }
 
-export const useAuth = () => useContext(AuthContext)
+export const useAuth = () => {
+	const context = useContext(AuthContext);
+	if (!context) {
+		throw new Error('useAuth must be used within an AuthProvider');
+	}
+	return context;
+};

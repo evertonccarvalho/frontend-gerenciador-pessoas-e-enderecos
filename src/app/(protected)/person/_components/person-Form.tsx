@@ -371,11 +371,6 @@ export const PersonForm: React.FC<PersonFormProps> = ({
 								)}
 							/>
 						</div>
-
-
-
-
-
 					</div>
 
 					<Button disabled={loading} type="submit" className="w-full text-white">
