@@ -1,18 +1,15 @@
 'use client';
 import * as z from 'zod';
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import {
-	ArrowRight,
-	CalendarIcon,
+
 	Loader2,
-	PlusIcon,
-	Trash,
+
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from "@/components/ui/button"
-import { format } from "date-fns"
 import {
 	Form,
 	FormControl,
@@ -22,22 +19,15 @@ import {
 	FormLabel,
 	FormMessage,
 } from "@/components/ui/form"
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from "@/components/ui/popover"
-import { Calendar } from "@/components/ui/calendar"
-import { cn } from '@/lib/utils';
+
 
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 import personService from '@/services/personService';
-import { Heading } from '@/components/heading';
 import { personSchema, updatePersonSchema } from '@/lib/schemas';
-import DatePicker from './DatePicker';
 import { Switch } from '@/components/ui/switch';
+import { brasilApiCep } from '@/services/cepService';
 
 
 type PersonFormValues = z.infer<typeof personSchema>;
@@ -61,8 +51,31 @@ export const PersonForm: React.FC<PersonFormProps> = ({
 	const toastMessage = initialData ? 'Persoa Atualizado.' : 'Persoa Criada.';
 	const action = initialData ? 'Salvar Alterações' : 'Criar';
 	const queryClient = useQueryClient();
+	const [filledByCep, setFilledByCep] = useState(false);
+	const [inputsDisabled, setInputsDisabled] = useState(false);
 
+	const fetchAddressFromCep = async (cep: string) => {
+		try {
+			const addressData = await brasilApiCep().getAddress(cep);
+			form.setValue('addresses.zipcode', addressData.cep);
+			form.setValue('addresses.city', addressData.city);
+			form.setValue('addresses.neighborhood', addressData.neighborhood);
+			form.setValue('addresses.state', addressData.state);
+			form.setValue('addresses.address', addressData.street);
+			form.setValue('addresses.complement', addressData.complement);
+			setFilledByCep(true)
+			setInputsDisabled(true);
+		} catch (error) {
+			console.error('Erro ao buscar endereço:', error);
+		}
+	};
 
+	const handleCepBlur = async () => {
+		const cep = form.getValues('addresses.zipcode');
+		if (cep) {
+			await fetchAddressFromCep(cep);
+		}
+	};
 
 	const defaultValues = initialData
 		? initialData
@@ -229,6 +242,7 @@ export const PersonForm: React.FC<PersonFormProps> = ({
 												disabled={loading}
 												placeholder="CEP"
 												{...field}
+												onBlur={handleCepBlur}
 											/>
 										</FormControl>
 										<FormMessage />
@@ -244,7 +258,7 @@ export const PersonForm: React.FC<PersonFormProps> = ({
 											<FormLabel>Cidade</FormLabel>
 											<FormControl>
 												<Input
-													disabled={loading}
+													disabled={loading || (inputsDisabled && filledByCep)}
 													placeholder="Cidade"
 													{...field}
 												/>
@@ -278,7 +292,7 @@ export const PersonForm: React.FC<PersonFormProps> = ({
 											<FormLabel>Estado</FormLabel>
 											<FormControl>
 												<Input
-													disabled={loading}
+													disabled={loading || (inputsDisabled && filledByCep)}
 													placeholder="Estado"
 													{...field}
 												/>

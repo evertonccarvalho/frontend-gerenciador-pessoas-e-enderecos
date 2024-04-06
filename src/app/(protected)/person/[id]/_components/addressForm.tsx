@@ -22,6 +22,7 @@ import addressesService from '@/services/addressesService';
 import { Heading } from '@/components/heading';
 import { Switch } from '@/components/ui/switch';
 import { addressSchema, IAddresses, updateAddressSchema } from '@/lib/schemas';
+import { brasilApiCep } from '@/services/cepService';
 
 type AddressFormValues = z.infer<typeof addressSchema>;
 export type AddressInitalData = z.infer<typeof updateAddressSchema>;
@@ -45,7 +46,31 @@ export const AddressForm: React.FC<FormProps> = ({
 	const toastMessage = initialData ? 'Endereço Atualizado.' : 'Endereço Criado.';
 	const action = initialData ? 'Salvar Alterações' : 'Criar';
 	const queryClient = useQueryClient();
+	const [filledByCep, setFilledByCep] = useState(false);
+	const [inputsDisabled, setInputsDisabled] = useState(false);
 
+	const fetchAddressFromCep = async (cep: string) => {
+		try {
+			const addressData = await brasilApiCep().getAddress(cep);
+			form.setValue('zipcode', addressData.cep);
+			form.setValue('city', addressData.city);
+			form.setValue('neighborhood', addressData.neighborhood);
+			form.setValue('state', addressData.state);
+			form.setValue('address', addressData.street);
+			form.setValue('complement', addressData.complement);
+			setFilledByCep(true)
+			setInputsDisabled(true);
+		} catch (error) {
+			console.error('Erro ao buscar endereço:', error);
+		}
+	};
+
+	const handleCepBlur = async () => {
+		const cep = form.getValues('zipcode');
+		if (cep) {
+			await fetchAddressFromCep(cep);
+		}
+	};
 	const defaultValues = initialData
 		? initialData
 		: {
@@ -63,6 +88,7 @@ export const AddressForm: React.FC<FormProps> = ({
 		resolver: zodResolver(addressSchema),
 		defaultValues,
 	});
+
 
 
 	const onSubmit = async (data: z.infer<typeof addressSchema>) => {
@@ -116,6 +142,7 @@ export const AddressForm: React.FC<FormProps> = ({
 											disabled={loading}
 											placeholder="CEP"
 											{...field}
+											onBlur={handleCepBlur}
 										/>
 									</FormControl>
 									<FormMessage />
@@ -131,7 +158,7 @@ export const AddressForm: React.FC<FormProps> = ({
 										<FormLabel>Cidade</FormLabel>
 										<FormControl>
 											<Input
-												disabled={loading}
+												disabled={loading || (inputsDisabled && filledByCep)}
 												placeholder="Cidade"
 												{...field}
 											/>
@@ -151,6 +178,7 @@ export const AddressForm: React.FC<FormProps> = ({
 												disabled={loading}
 												placeholder="Bairro"
 												{...field}
+
 											/>
 										</FormControl>
 										<FormMessage />
@@ -165,7 +193,7 @@ export const AddressForm: React.FC<FormProps> = ({
 										<FormLabel>Estado</FormLabel>
 										<FormControl>
 											<Input
-												disabled={loading}
+												disabled={loading || (inputsDisabled && filledByCep)}
 												placeholder="Estado"
 												{...field}
 											/>

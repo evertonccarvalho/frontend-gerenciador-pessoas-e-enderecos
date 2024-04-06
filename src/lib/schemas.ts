@@ -25,7 +25,7 @@ export const addressSchema = z.object({
   address: z.string().min(1, "Não pode estar vazio."),
   number: z.coerce.number(),
   complement: z.string(),
-  zipcode: z.string().regex(/^\d{5}-\d{3}$/i, "Formato de CEP inválido."),
+  zipcode: z.string().regex(/^\d{8}$/i, "Formato de CEP inválido."),
   city: z.string().min(3, "Mínimo de 3 caracteres."),
   neighborhood: z.string().min(3, "Mínimo de 3 caracteres."),
   state: z.string().min(2, "Mínimo de 2 caracteres."),
