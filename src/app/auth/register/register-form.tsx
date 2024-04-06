@@ -50,7 +50,6 @@ export const RegisterForm = () => {
     } catch (error) {
       setError("Erro ao tentar criar conta");
     }
-    console.log(values);
     setIsSubmitting(false);
 
   };
