@@ -2,7 +2,6 @@ import api from './api';
 import { z } from 'zod';
 import { TokenService } from './tokenService';
 import { LoginSchema, RegisterSchema } from '@/lib/schemas';
-import { handleErrorResponse } from '@/lib/utils';
 
 
 
@@ -16,8 +15,11 @@ const authService = {
 				TokenService.saveRefreshToken(refreshToken);
 			}
 			return res;
-		} catch (error) {
-			return handleErrorResponse(error);
+		} catch (error: any) {
+			if (error.response && (error.response.status === 400 || error.response.status === 401)) {
+				return error.response;
+			}
+			return error;
 		}
 	},
 
@@ -25,8 +27,11 @@ const authService = {
 		try {
 			const res = await api.post('/auth/register', formData);
 			return res;
-		} catch (error) {
-			return handleErrorResponse(error);
+		} catch (error: any) {
+			if (error.response && (error.response.status === 400 || error.response.status === 401)) {
+				return error.response;
+			}
+			return error;
 		}
 	},
 

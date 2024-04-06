@@ -22,13 +22,13 @@ export const RegisterSchema = z.object({
 });
 
 export const addressSchema = z.object({
-  address: z.string().min(1, "Não pode estar vazio."),
+  address: z.string().min(1, "Não pode estar vazio.").max(50, { message: "Máximo 50 caracteres." }),
   number: z.coerce.number(),
-  complement: z.string(),
+  complement: z.string().max(30, { message: "Deve ter no máximo 30 caracteres." }),
   zipcode: z.string().regex(/^\d{8}$/i, "Formato de CEP inválido."),
-  city: z.string().min(3, "Mínimo de 3 caracteres."),
-  neighborhood: z.string().min(3, "Mínimo de 3 caracteres."),
-  state: z.string().min(2, "Mínimo de 2 caracteres."),
+  city: z.string().min(3, "Mínimo de 3 caracteres.").max(30, { message: "Máximo 50 caracteres." }),
+  neighborhood: z.string().min(3, "Mínimo de 3 caracteres.").max(20, { message: "Máximo 20 caracteres." }),
+  state: z.string().min(2, "É obrigatório"),
   isDefault: z.boolean().default(false),
 });
 
@@ -37,12 +37,13 @@ export const updateAddressSchema = addressSchema.extend({
 });
 
 export const personSchema = z.object({
-  name: z.string().min(4, { message: "O nome deve ter no mínimo 4 caracteres." }),
+  name: z.string().min(4, { message: "O nome deve ter no mínimo 4 caracteres." }).max(40, { message: "Máximo 40 caracteres." }),
   sex: z.string().min(1, { message: "Selecione o sexo." }),
   dateOfBirth: z.string().min(1, { message: "Data de Nascimento Invalida" }),
   maritalStatus: z.string().min(1, { message: "Selecione o estado civil." }),
   addresses: addressSchema.optional(),
 });
+
 
 export const updatePersonSchema = personSchema.extend({
   id: z.string(),

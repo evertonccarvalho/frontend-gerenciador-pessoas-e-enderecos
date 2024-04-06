@@ -28,11 +28,23 @@ import personService from '@/services/personService';
 import { personSchema, updatePersonSchema } from '@/lib/schemas';
 import { Switch } from '@/components/ui/switch';
 import { brasilApiCep } from '@/services/cepService';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 
 type PersonFormValues = z.infer<typeof personSchema>;
 export type PersonInitalData = z.infer<typeof updatePersonSchema>;
 
+enum Gender {
+	MALE = 'Masculino',
+	FEMALE = "Feminino",
+	OTHER = "Outro"
+}
+enum MaritalStatus {
+	SINGLE = 'Solteiro(a)',
+	MARRIED = 'Casado(a)',
+	DIVORCED = 'Divorciado(a)',
+	WIDOWED = 'Viúvo(a)'
+};
 
 interface PersonFormProps {
 	initialData: PersonInitalData | null;
@@ -178,15 +190,24 @@ export const PersonForm: React.FC<PersonFormProps> = ({
 								name="sex"
 								render={({ field }) => (
 									<FormItem className='w-full'>
-
-										<FormLabel>Sexo</FormLabel>
-										<FormControl>
-											<Input
-												disabled={loading}
-												placeholder="Sexo"
-												{...field}
-											/>
-										</FormControl>
+										<FormLabel>Genero</FormLabel>
+										<Select
+											disabled={loading}
+											onValueChange={field.onChange}
+											defaultValue={field.value}>
+											<FormControl>
+												<SelectTrigger>
+													<SelectValue placeholder="Selecione o gênero" />
+												</SelectTrigger>
+											</FormControl>
+											<SelectContent>
+												{Object.values(Gender).map((gender) => (
+													<SelectItem key={gender} value={gender}>
+														{gender}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
 										<FormMessage />
 									</FormItem>
 								)}
@@ -196,14 +217,24 @@ export const PersonForm: React.FC<PersonFormProps> = ({
 								name="maritalStatus"
 								render={({ field }) => (
 									<FormItem className='w-full'>
-										<FormLabel>Estado civil</FormLabel>
-										<FormControl>
-											<Input
-												disabled={loading}
-												placeholder="Estado civil"
-												{...field}
-											/>
-										</FormControl>
+										<FormLabel>Estado Civil</FormLabel>
+										<Select
+											disabled={loading}
+											onValueChange={field.onChange}
+											defaultValue={field.value}>
+											<FormControl>
+												<SelectTrigger>
+													<SelectValue placeholder="Selecione estado civil" />
+												</SelectTrigger>
+											</FormControl>
+											<SelectContent>
+												{Object.values(MaritalStatus).map((status) => (
+													<SelectItem key={status} value={status}>
+														{status}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
 										<FormMessage />
 									</FormItem>
 								)}
