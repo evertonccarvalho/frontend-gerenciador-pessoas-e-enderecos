@@ -1,11 +1,11 @@
 import HeaderDashboard from "./_components/HeaderDashboard";
+
+
 interface SettingsLayoutProps {
 	children: React.ReactNode;
 }
 
-const DashboardLayout = async ({ children }: SettingsLayoutProps) => {
-
-
+const DashboardLayout = ({ children }: SettingsLayoutProps) => {
 	return (
 		<>
 			<div className="flex flex-col  h-full min-h-dvh">

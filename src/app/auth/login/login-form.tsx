@@ -1,11 +1,9 @@
 "use client";
-
 import type * as z from "zod";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-
 import { Input } from "@/components/ui/input";
 import {
   Form,
@@ -17,19 +15,13 @@ import {
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { LoginSchema } from "@/lib/schemas";
-import { useAuth } from "@/providers/AuthContext";
 import { Loader2 } from "lucide-react";
-import { FormError } from "../_components/form-error";
-import { FormSuccess } from "../_components/form-success";
-import authService from "@/services/authService";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/providers/AuthContext";
 
 export const LoginForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | undefined>("");
-  const [success, setSuccess] = useState<string | undefined>("");
-  const router = useRouter()
-
+  const { signIn } = useAuth()
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
     defaultValues: {
@@ -38,26 +30,11 @@ export const LoginForm = () => {
     },
   });
 
-
-  const onSubmit = async (values: z.infer<typeof LoginSchema>) => {
+  async function onSubmit(formData: z.infer<typeof LoginSchema>) {
     setIsSubmitting(true);
-
-    try {
-      const response = await authService.login(values);
-      console.log(response.data.message);
-      if (response.status === 200) {
-        setSuccess("Logado com sucesso!");
-        router.push("/person")
-      } else {
-        setError(response.data.message);
-      }
-    } catch (error) {
-      setError("Erro ao fazer login");
-    }
-
+    signIn(formData)
     setIsSubmitting(false);
-
-  };
+  }
 
   return (
     <Form {...form}>
@@ -110,8 +87,7 @@ export const LoginForm = () => {
             />
           </>
         </div>
-        <FormError message={error} />
-        <FormSuccess message={success} />
+
         <Button disabled={isSubmitting} type="submit" className="w-full text-white">
 
           {isSubmitting ? (

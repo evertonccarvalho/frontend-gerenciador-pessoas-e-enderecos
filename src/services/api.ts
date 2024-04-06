@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { TokenService } from './tokenService';
-
+import { getCookie } from 'cookies-next'; // Importa a função getCookie da biblioteca 'cookies-next'
 
 const defaultOptions = {
 	baseURL: process.env.NEXT_PUBLIC_BASEURL,
@@ -11,14 +11,15 @@ const api = axios.create(defaultOptions);
 // Add a request interceptor
 api.interceptors.request.use(
 	(config) => {
-		const token = localStorage.getItem('token');
-		if (token) {
-			config.headers.Authorization = `Bearer ${token}`;
+		const accessToken = TokenService.getAccessToken();
+		if (accessToken) {
+			config.headers.Authorization = `Bearer ${accessToken}`;
 		}
 		return config;
 	},
 	(error) => Promise.reject(error)
 );
+
 // Add a response interceptor
 api.interceptors.response.use(
 	(response) => response,
@@ -30,25 +31,24 @@ api.interceptors.response.use(
 		if (error.response.status === 401 && !originalRequest._retry) {
 			originalRequest._retry = true;
 
-			const refreshToken = localStorage.getItem('refreshToken');
+			const refreshToken = getCookie('refreshToken'); // Obtém o refreshToken usando a função getCookie de 'cookies-next'
 			if (!refreshToken) {
-				TokenService.removeTokens()
+				TokenService.removeTokens();
 				return Promise.reject(error);
 			}
 			try {
 				const response = await axios.post(`${process.env.NEXT_PUBLIC_BASEURL}/refresh`, { refreshToken });
 				const { token: accessToken, refreshToken: newRefreshToken } = response.data;
-				localStorage.setItem('token', accessToken);
-				localStorage.setItem('refreshToken', newRefreshToken);
+				TokenService.saveAccessToken(accessToken); // Salva o novo accessToken usando TokenService
+				TokenService.saveRefreshToken(newRefreshToken); // Salva o novo refreshToken usando TokenService
 				// Retry the original request with the new token
 				originalRequest.headers.Authorization = `Bearer ${accessToken}`;
 				return axios(originalRequest);
 			} catch (error) {
 				// Handle refresh token error or redirect to login
-				console.log('Erro ao atualiza token de acesso', error);
+				console.log('Erro ao atualizar token de acesso', error);
 				// Redirecionar para a página de login
 				window.location.href = '/auth/login';
-
 			}
 		}
 
@@ -56,4 +56,4 @@ api.interceptors.response.use(
 	}
 );
 
-export default api
+export default api;
