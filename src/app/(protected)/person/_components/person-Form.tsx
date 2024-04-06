@@ -69,7 +69,7 @@ export const PersonForm: React.FC<PersonFormProps> = ({
 		: {
 			name: "",
 			sex: "",
-			dateOfBirth: undefined,
+			dateOfBirth: '',
 			maritalStatus: "",
 			addresses: {
 				address: "",
@@ -102,15 +102,15 @@ export const PersonForm: React.FC<PersonFormProps> = ({
 					initialData.id || '',
 					FORM_DATA
 				);
-				console.log('resupdate', res)
+				toast.success(`${toastMessage}`);
 			}
 			else {
 				const res = await personService.create(FORM_DATA);
-				console.log('Resposta do servidor:', res);
+				const birthdayMessage = res.data.birthdayMessage;
+				toast.success(`Cadastro realizado com sucesso! ${birthdayMessage}`);
 			}
-
 			queryClient.invalidateQueries({ queryKey: ['person'] });
-			toast.success(`${toastMessage}`);
+			// toast.success(`${toastMessage}`);
 			onClose()
 		} catch (error: any) {
 			console.log(error);
@@ -164,7 +164,8 @@ export const PersonForm: React.FC<PersonFormProps> = ({
 								control={form.control}
 								name="sex"
 								render={({ field }) => (
-									<FormItem>
+									<FormItem className='w-full'>
+
 										<FormLabel>Sexo</FormLabel>
 										<FormControl>
 											<Input
@@ -181,7 +182,7 @@ export const PersonForm: React.FC<PersonFormProps> = ({
 								control={form.control}
 								name="maritalStatus"
 								render={({ field }) => (
-									<FormItem>
+									<FormItem className='w-full'>
 										<FormLabel>Estado civil</FormLabel>
 										<FormControl>
 											<Input
@@ -206,11 +207,7 @@ export const PersonForm: React.FC<PersonFormProps> = ({
 												type="date"
 												placeholder="Data de nascimento"
 												{...field}
-												value={
-													field.value instanceof Date
-														? field.value.toISOString().split('T')[0]
-														: field.value
-												}
+												value={field.value}
 											/>
 										</FormControl>
 										<FormMessage />

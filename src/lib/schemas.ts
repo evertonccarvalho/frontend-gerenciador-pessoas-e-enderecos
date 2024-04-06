@@ -39,9 +39,7 @@ export const updateAddressSchema = addressSchema.extend({
 export const personSchema = z.object({
   name: z.string().min(4, { message: "O nome deve ter no mínimo 4 caracteres." }),
   sex: z.string().min(1, { message: "Selecione o sexo." }),
-  dateOfBirth: z.coerce.date().refine(value => !isNaN(value.getTime()), {
-    message: "Data de nascimento inválida."
-  }),
+  dateOfBirth: z.string().min(1, { message: "Data de Nascimento Invalida" }),
   maritalStatus: z.string().min(1, { message: "Selecione o estado civil." }),
   addresses: addressSchema.optional(),
 });
