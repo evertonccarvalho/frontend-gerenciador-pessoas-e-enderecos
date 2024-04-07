@@ -45,15 +45,19 @@ export const personSchema = z.object({
 });
 
 
-export const updatePersonSchema = personSchema.extend({
+export const updatePersonSchema = z.object({
   id: z.string(),
+  name: z.string().min(4, { message: "O nome deve ter no mínimo 4 caracteres." }).max(40, { message: "Máximo 40 caracteres." }),
+  sex: z.string().min(1, { message: "Selecione o sexo." }),
+  dateOfBirth: z.string().min(1, { message: "Data de Nascimento Invalida" }),
+  maritalStatus: z.string().min(1, { message: "Selecione o estado civil." }),
 });
 
 export interface IPerson {
   id: string;
   name: string;
   sex: string;
-  dateOfBirth: Date;
+  dateOfBirth: string;
   maritalStatus: string;
   addresses?: IAddresses[];
   defaultAddress?: IAddresses;

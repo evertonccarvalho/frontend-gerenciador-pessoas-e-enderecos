@@ -1,7 +1,6 @@
 'use client';
 import { useQuery } from '@tanstack/react-query';
 import { Heading } from '@/components/heading';
-import BreadCrumb from '@/components/breadcrumb';
 import { Plus } from 'lucide-react';
 import { Button, } from '@/components/ui/button';
 import { useState } from 'react';
@@ -12,9 +11,9 @@ import { PersonTable } from './_components/person-table';
 import { columnsPerson } from './_components/person-columns';
 import { Separator } from '@/components/ui/separator';
 import personService from '@/services/personService';
-import { format, parseISO } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+
 import { IPerson } from '@/lib/schemas';
+import { formatDateString } from './_components/dateUtils';
 
 type paramsProps = {
 	searchParams: {
@@ -47,8 +46,8 @@ const PersonPage = ({ searchParams }: paramsProps) => {
 
 	const formattedData = data.map((person: IPerson) => {
 		const { id, name, sex, dateOfBirth, maritalStatus, addresses } = person;
-		const formattedDateOfBirth = format((dateOfBirth), 'dd/MM/yyyy', { locale: ptBR });
-		return { id, name, sex, maritalStatus, addresses, dateOfBirth: formattedDateOfBirth, };
+		const formattedDateOfBirth = formatDateString(dateOfBirth);
+		return { id, name, sex, maritalStatus, addresses, dateOfBirth: formattedDateOfBirth };
 	});
 
 

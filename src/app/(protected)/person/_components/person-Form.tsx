@@ -3,11 +3,7 @@ import * as z from 'zod';
 import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import {
-
-	Loader2,
-
-} from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from "@/components/ui/button"
 import {
@@ -29,6 +25,7 @@ import { personSchema, updatePersonSchema } from '@/lib/schemas';
 import { Switch } from '@/components/ui/switch';
 import { brasilApiCep } from '@/services/cepService';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { getDefaultValues } from './formUtils';
 
 
 type PersonFormValues = z.infer<typeof personSchema>;
@@ -89,54 +86,35 @@ export const PersonForm: React.FC<PersonFormProps> = ({
 		}
 	};
 
-	const defaultValues = initialData
-		? initialData
-		: {
-			name: "",
-			sex: "",
-			dateOfBirth: '',
-			maritalStatus: "",
-			addresses: {
-				address: "",
-				number: 0,
-				complement: "",
-				neighborhood: "",
-				zipcode: "",
-				city: "",
-				state: "",
-				isDefault: true
-			}
-		}
+	const defaultValues = getDefaultValues(initialData);
 
+	const resolver = initialData ? zodResolver(updatePersonSchema) : zodResolver(personSchema);
 
 	const form = useForm<PersonFormValues>({
-		resolver: zodResolver(personSchema),
+		resolver,
 		defaultValues,
 	});
 
 
-
 	const onSubmit = async (data: z.infer<typeof personSchema>) => {
-		const FORM_DATA = personSchema.parse(data);
-
 		try {
 			setLoading(true);
+			let parsedData;
 			if (initialData !== null) {
-				console.log("initialdata", initialData);
-				const res = await personService.update(
-					initialData.id || '',
-					FORM_DATA
-				);
-				toast.success(`${toastMessage}`);
+				parsedData = updatePersonSchema.parse(data);
+				await personService.update(initialData.id || '', parsedData);
+			} else {
+				parsedData = personSchema.parse(data);
+				const res = await personService.create(parsedData);
+				if (res.data.birthdayMessage) {
+					toast.success(`Cadastro realizado com sucesso! ${res.data.birthdayMessage}`);
+				} else {
+					toast.success(`${toastMessage}`);
+				}
 			}
-			else {
-				const res = await personService.create(FORM_DATA);
-				const birthdayMessage = res.data.birthdayMessage;
-				toast.success(`Cadastro realizado com sucesso! ${birthdayMessage}`);
-			}
+
 			queryClient.invalidateQueries({ queryKey: ['person'] });
-			// toast.success(`${toastMessage}`);
-			onClose()
+			onClose();
 		} catch (error: any) {
 			console.log(error);
 			toast.error(
@@ -146,6 +124,7 @@ export const PersonForm: React.FC<PersonFormProps> = ({
 			setLoading(false);
 		}
 	};
+
 
 
 	return (
@@ -259,160 +238,164 @@ export const PersonForm: React.FC<PersonFormProps> = ({
 								)}
 							/>
 						</div>
-						<div className='flex gap-2 flex-col w-full  pt-4'>
-							<h1 className='font-semibold text-center'>Endereço</h1>
 
-							<FormField
-								control={form.control}
-								name="addresses.zipcode"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>CEP</FormLabel>
-										<FormControl>
-											<Input
-												disabled={loading}
-												placeholder="CEP"
-												{...field}
-												onBlur={handleCepBlur}
-											/>
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-							<div className='flex gap-2 w-full'>
+						{!initialData && (
+							<div className='flex gap-2 flex-col w-full  pt-4'>
+								<h1 className='font-semibold text-center'>Endereço</h1>
+
 								<FormField
 									control={form.control}
-									name="addresses.city"
-									render={({ field }) => (
-										<FormItem className='w-full'>
-											<FormLabel>Cidade</FormLabel>
-											<FormControl>
-												<Input
-													disabled={loading || (inputsDisabled && filledByCep)}
-													placeholder="Cidade"
-													{...field}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								<FormField
-									control={form.control}
-									name="addresses.neighborhood"
+									name="addresses.zipcode"
 									render={({ field }) => (
 										<FormItem>
-											<FormLabel>Bairro</FormLabel>
+											<FormLabel>CEP</FormLabel>
 											<FormControl>
 												<Input
 													disabled={loading}
-													placeholder="Bairro"
+													placeholder="CEP"
 													{...field}
+													onBlur={handleCepBlur}
 												/>
 											</FormControl>
 											<FormMessage />
 										</FormItem>
 									)}
 								/>
+								<div className='flex gap-2 w-full'>
+									<FormField
+										control={form.control}
+										name="addresses.city"
+										render={({ field }) => (
+											<FormItem className='w-full'>
+												<FormLabel>Cidade</FormLabel>
+												<FormControl>
+													<Input
+														disabled={loading || (inputsDisabled && filledByCep)}
+														placeholder="Cidade"
+														{...field}
+													/>
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+									<FormField
+										control={form.control}
+										name="addresses.neighborhood"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>Bairro</FormLabel>
+												<FormControl>
+													<Input
+														disabled={loading}
+														placeholder="Bairro"
+														{...field}
+													/>
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+									<FormField
+										control={form.control}
+										name="addresses.state"
+										render={({ field }) => (
+											<FormItem className='w-[20%] '>
+												<FormLabel>Estado</FormLabel>
+												<FormControl>
+													<Input
+														disabled={loading || (inputsDisabled && filledByCep)}
+														placeholder="Estado"
+														{...field}
+													/>
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+								</div>
+								<div className='flex gap-2 w-full'>
+									<FormField
+										control={form.control}
+										name="addresses.address"
+										render={({ field }) => (
+											<FormItem className='w-full'>
+												<FormLabel>Rua</FormLabel>
+												<FormControl>
+													<Input
+														disabled={loading}
+														placeholder="Rua"
+														{...field}
+													/>
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+									<FormField
+										control={form.control}
+										name="addresses.complement"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>Complemento</FormLabel>
+												<FormControl>
+													<Input
+														disabled={loading}
+														placeholder="Complemento"
+														{...field}
+													/>
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+									<FormField
+										control={form.control}
+										name="addresses.number"
+										render={({ field }) => (
+											<FormItem className='w-[20%] '>
+												<FormLabel>Numero</FormLabel>
+												<FormControl>
+													<Input
+
+														type="number"
+														min="0"
+														disabled={loading}
+														placeholder="Numero"
+														{...field}
+													/>
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+								</div>
+
 								<FormField
 									control={form.control}
-									name="addresses.state"
+									name="addresses.isDefault"
 									render={({ field }) => (
-										<FormItem className='w-[20%] '>
-											<FormLabel>Estado</FormLabel>
+										<FormItem className="flex bg-card flex-row items-center justify-between rounded-lg border p-4">
+											<div className="space-y-0.5">
+												<FormLabel className="text-base">Endereço Padrão</FormLabel>
+												<FormDescription>
+													Deseja definir este endereço como seu endereço padrão.
+												</FormDescription>
+											</div>
 											<FormControl>
-												<Input
-													disabled={loading || (inputsDisabled && filledByCep)}
-													placeholder="Estado"
-													{...field}
+												<Switch
+													checked={field.value}
+													onCheckedChange={field.onChange}
+
+													aria-readonly
 												/>
 											</FormControl>
-											<FormMessage />
 										</FormItem>
 									)}
 								/>
 							</div>
-							<div className='flex gap-2 w-full'>
-								<FormField
-									control={form.control}
-									name="addresses.address"
-									render={({ field }) => (
-										<FormItem className='w-full'>
-											<FormLabel>Rua</FormLabel>
-											<FormControl>
-												<Input
-													disabled={loading}
-													placeholder="Rua"
-													{...field}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								<FormField
-									control={form.control}
-									name="addresses.complement"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Complemento</FormLabel>
-											<FormControl>
-												<Input
-													disabled={loading}
-													placeholder="Complemento"
-													{...field}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								<FormField
-									control={form.control}
-									name="addresses.number"
-									render={({ field }) => (
-										<FormItem className='w-[20%] '>
-											<FormLabel>Numero</FormLabel>
-											<FormControl>
-												<Input
+						)}
 
-													type="number"
-													min="0"
-													disabled={loading}
-													placeholder="Numero"
-													{...field}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-							</div>
-
-							<FormField
-								control={form.control}
-								name="addresses.isDefault"
-								render={({ field }) => (
-									<FormItem className="flex bg-card flex-row items-center justify-between rounded-lg border p-4">
-										<div className="space-y-0.5">
-											<FormLabel className="text-base">Endereço Padrão</FormLabel>
-											<FormDescription>
-												Deseja definir este endereço como seu endereço padrão.
-											</FormDescription>
-										</div>
-										<FormControl>
-											<Switch
-												checked={field.value}
-												onCheckedChange={field.onChange}
-
-												aria-readonly
-											/>
-										</FormControl>
-									</FormItem>
-								)}
-							/>
-						</div>
 					</div>
 
 					<Button disabled={loading} type="submit" className="w-full text-white">

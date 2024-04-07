@@ -13,13 +13,13 @@ import { ArrowUpRight, Edit, MoreHorizontal, MoreVertical, Trash, View, ViewIcon
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { PersonForm } from './person-Form';
+import { PersonForm, PersonInitalData } from './person-Form';
 import { IPerson } from '@/lib/schemas';
 import { AlertModal } from '@/components/alert-modal';
 import { useRouter } from 'next/navigation';
 
 interface CellActionProps {
-	data: IPerson;
+	data: PersonInitalData;
 }
 
 export const CellAction: React.FC<CellActionProps> = ({ data }) => {
@@ -60,14 +60,14 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
 					onConfirm={() => deletePersonMutation.mutate()}
 					loading={loading}
 				/>
-				{/* <FormModal
+				<FormModal
 					isOpen={openUpdate}
 					onClose={() => setOpenUpdate(false)}
 				>
 					<PersonForm
 						onClose={() => setOpenUpdate(false)}
 						initialData={data} />
-				</FormModal> */}
+				</FormModal>
 				<DropdownMenu modal={false}>
 					<DropdownMenuTrigger asChild>
 						<Button variant="ghost" className="h-8 w-8 p-0">
@@ -81,10 +81,10 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
 							<ArrowUpRight className="mr-2 h-4 w-4" /> Detalhes
 						</DropdownMenuItem>
 						<DropdownMenuItem onClick={() => setOpenUpdate(true)}>
-							<Edit className="mr-2 h-4 w-4" /> Atualizar
+							<Edit className="mr-2 h-4 w-4" /> Editar
 						</DropdownMenuItem>
-						<DropdownMenuItem onClick={() => setOpenDelete(true)}>
-							<Trash className="mr-2 h-4 w-4" /> Deletar
+						<DropdownMenuItem className='text-red-600' onClick={() => setOpenDelete(true)}>
+							<Trash className="mr-2 h-4 w-4 " /> Deletar
 						</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>
